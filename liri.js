@@ -13,45 +13,86 @@ var request = require("request");
 //external package to handle files
 var fs = require("fs");
 
-var commands = process.argv[2];
-var args = [];
+var inquirerUserPromppt = require("inquirer");
 
-//getting 1 or more arguments after the command
-for (var i = 3; i < process.argv.length; i++) {
-		args += process.argv[i]+ " ";
-	};
+main();
 
-//Main Program
-main(commands, args);
+function main() { 
+inquirerUserPromppt
+.prompt([
+		{
+		  type: "checkbox",
+		  message: "Hi, my name is Liri. What do you want me search for you?",
+		  name: "commands",
+		  choices: 
+		  [
+		  	"my-tweets",
+		  	"spotify-this-song",
+		  	"movie-this",
+		  	"do-what-it-says",
+		  	"exit"
+		  ]
+		}
+	])
+	.then(function(inquirerResponse) {
+		console.log("You've chosen: "+inquirerResponse.commands+". Please follow instructions!");
+		var commands = JSON.stringify(inquirerResponse.commands);
+		switch (commands) {
+			case '["my-tweets"]':
+			console.log("twitter");
+			var inquirerTwitter = require("inquirer");
+			inquirerTwitter
+			.prompt([
+					{
+				      type: "input",
+				      message: "Please type a twitter username",
+				      name: "username"
+				    }
+				])
+			.then(function(inquirerResponse) {
+				twitter(inquirerResponse.username);
+			})
+			break;
 
-//Main Function
-function main(commands, args) {
-	switch (commands) {
-		case "my-tweets":
-		twitter(args);
-		break;
+			case '["spotify-this-song"]':
+			var inquirerSpotify = require("inquirer");
+			inquirerSpotify
+			.prompt([
+					{
+				      type: "input",
+				      message: "Please the name of a song",
+				      name: "song"
+				    }
+				])
+			.then(function(inquirerResponse) {
+				spotify(inquirerResponse.song);
+			})
+			break;
 
-		case "spotify-this-song":
-		spotify(args);
-		break;
+			case '["movie-this"]':
+			var inquirerMovie = require("inquirer");
+			inquirerMovie
+			.prompt([
+					{
+				      type: "input",
+				      message: "Please type a movie name",
+				      name: "movie"
+				    }
+				])
+			.then(function(inquirerResponse) {
+				movie(inquirerResponse.movie);
+			})
+			break;
 
-		case "movie-this":
-		movie(args);
-		break;
+			case '["do-what-it-says"]':
+			doIt();
+			break;
 
-		case "do-what-it-says":
-		doIt();
-		break;
-
-		default:
-		log("The available commands are: ");
-		log( "my-tweets <twitter_id>");
-		log( "spotify-this-song <song name>");
-		log( "movie-this <movie title>");
-		log( "do-what-it-says");
-		log( "Please choose a valid command and try again!");
+			default:
+			console.log("Bye!")
 	}
-}
+	});
+};
 
 function twitter(user){
 	var client = new Twitter ({
@@ -99,7 +140,6 @@ function spotify(song) {
 	  	log("                                      ");
 	  }
 	});
-
 };
 
 function movie(movieName) {
@@ -149,7 +189,7 @@ function doIt() {
 	  }
 	  // Then split it by commas (to make it more readable)
 	  	var dataArr = data.split(",");
-	  	main(dataArr[0], dataArr[1]);
+	  	spotify(dataArr[1]);
 	});
 
 };
